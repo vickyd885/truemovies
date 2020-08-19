@@ -57,21 +57,30 @@ merged_df = pd.merge(movies_df, wiki_df, on="title")
 # sample_merge = merged_df.loc[merged_df['title'] == 'Toy Story']
 # print(sample_movies, sample_wiki, sample_merge)
 
-all_columns = list(merged_df)
-columns_to_keep = ['title', 'url', 'abstract', 'revenue_ratio', 'budget', 'release_date'
-                   'production_companies', 'revenue', 'popularity']
 
-columns_to_drop = set(all_columns) - set(columns_to_keep)
+columns_to_drop = ['adult', 'belongs_to_collection', 'genres', 'homepage', 'id',
+                   'imdb_id', 'original_language', 'original_title', 'overview',
+                   'poster_path', 'production_countries',
+                   'runtime', 'spoken_languages', 'status', 'tagline', 'video',
+                   'vote_average', 'vote_count']
+
 print(list(merged_df))
 sql_df = merged_df.drop(columns=list(columns_to_drop))
 sql_df = sql_df.sort_values(by=['revenue_ratio']).head(top_num_of_records)
 
 print(sql_df)
+
+print(list(sql_df))
+
+
 engine = sqlalchemy.create_engine(f"postgresql://{pg_user}:{pg_password}@{pg_host}:{pg_port}/{pg_db}")
 con = engine.connect()
-
 table_name = 'top_movies'
+con.execute(f"DROP TABLE IF EXISTS {table_name};")
+
 sql_df.to_sql(table_name, con)
-
-
 con.close()
+
+
+merged_df = merged_df.drop(columns=columns_to_drop)
+merged_df.to_csv("datasets/merged.csv", index=False)

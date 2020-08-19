@@ -1,3 +1,4 @@
+
 input{
     file{
         path => "/usr/share/datasets/enwiki-latest-abstract.xml"
