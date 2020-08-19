@@ -2,12 +2,14 @@
 
 ### Approach
 
+Thank you for taking the time to reviewing my solution :) 
+
 I felt this was more of a data science exercise, rather than a data engineering task. 
 My solution meets the requirements but I also went a bit further and setup a logstash pipeline
 to ingest some of the data I was generating so it could be visualised in Kibana so it could  be used for other
 purposes too.
 
-The scripts I created would be akin to pipelines in a more sophisticated environment.
+The Python scripts I created would be akin to pipelines in a more sophisticated environment.
 My scripts proxy for orchestratable tasks in Airflow (or your favourite orchestrator), Spark jobs or even 
 standalone microservices. The goal would still be to filter the information, keep
 whats needed and reuse the useful information to be efficient.
@@ -31,7 +33,7 @@ The movies csv was fairly small, so I combined it with the simplified wiki csv i
 script using Pandas. Both scripts go into detail as to what I did, but it's not very 
 complicated, essentially just manipulating the dataframes until it met the requirements.
 
-Finally, I exported it to Postgres and also saved it as a csv. 
+Finally, I exported it to Postgres and also saved it as a csv (to be picked up by Elastic)
 
 As with any sort of messy data, there is clean up involved and as part of that, you have to decide
 what data to lose. This becomes relevant when merging the two datasets. The wikipedia dump has multiple 
@@ -44,17 +46,20 @@ My answer to this was to use the shortest link, because the shortest link will e
 correct movie page IF there is only ONE wikipedia article and therefore it must be about the movie. Or in the cases like `Toy Story` and `Terminator`, it will 
 point to a wikipedia disambiguation page, after which the user is free to find the correct article. 
 
+It's not the best solution, I could have invested more time in trying to ensure it was indeed the movie page. 
+
 ### Better to scrape 
 
 I would of preferred to not parse the wikipedia dump at all. Instead, once
 we have a list of top 1000 movies with the revenue/budget ratio, we could instead 
 have a pipeline which enriches these 1000 records by scrapping wikipedia. You could
-build a sophisticated pipeline that can work out more accurately which is the correct 
+build a task that can work out more accurately which is the correct 
 wikipedia link, but more importantly the amount of computation (1000 requests vs the 6gb 
-wikipedia dump) is massively reduced. 
+wikipedia dump) is massively reduced.
 
-There is some network cost associated with scrapping but these are manageable for 1000
-requests, especially as movie data does not change that frequently.
+There is some network overhead associated with scrapping but these are manageable for 1000
+requests, especially as movie data does not change that frequently so these requests would 
+happen rather infrequently. 
 
 #### ELK and some other crazy ideas
 
@@ -82,6 +87,17 @@ You could even have dedicated ingest-nodes setup just to optimise this part of t
 
 Elastic is of course a great choice for searches since we have lots of text here. Once indexed,
 searching capability is great and lots of great analytics are possible with Kibana.
+
+### Testing for correctness
+
+Another benefit of loading my data into Elastic was that it gives me easy view into 
+my dataset with Kibana. I actually found some issues with columns not correctly populating 
+because Elastic complained about some of my records -- so with this visibility, I was able to make
+the required changes to my scripts.
+
+I also tried to sample rows from my dataframes every time I tried to do a filter or a merge on the dataframe. The
+samples let you check if the data is as expected and everything looks correct. However, it's manual 
+and error prone and not very reliable. Better to have full visibility with Elastic.
 
 
 ### Setup & run 
@@ -116,5 +132,8 @@ set +o allexport
 method to check postgres (`SELECT * FROM top_movies;`)
 
 
+#### Other movie projects
 
+Random but I've actually done some data scrapping with movie data before to gather data from various sites + some visualisations.
 
+Check out https://vickyd885.github.io/mcu-graphs/site/ 
