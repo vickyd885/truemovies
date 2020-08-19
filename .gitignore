@@ -1,0 +1,6 @@
+datasets/
+env
+postgres.env
+
+.DS_Store
+.idea/

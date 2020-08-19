@@ -1,48 +1,49 @@
 version: '2.2'
 services:
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.0
-    container_name: elasticsearch
-    environment:
-      discovery.type: single-node
-    ports:
-      - 9200:9200
-    networks:
-      - main
-
-  logstash:
-    image: docker.elastic.co/logstash/logstash:7.9.0
-    container_name: logstash
-    volumes:
-      - $PWD/datasets/:/usr/share/datasets/
-      - $PWD/logstash/pipeline.yml:/usr/share/logstash/config/pipeline.yml
-      - $PWD/logstash/conf/:/usr/share/logstash/pipeline/
-    depends_on:
-      - elasticsearch
-    networks:
-      - main
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.9.0
-    container_name: kibana
-    ports:
-      - 5601:5601
-    environment:
-      ELASTICSEARCH_URL: http://elasticsearch:9200
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-    depends_on:
-      - elasticsearch
-    networks:
-      - main
+#  elasticsearch:
+#    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.0
+#    container_name: elasticsearch
+#    environment:
+#      discovery.type: single-node
+#    ports:
+#      - 9200:9200
+#    networks:
+#      - main
+#
+#  logstash:
+#    image: docker.elastic.co/logstash/logstash:7.9.0
+#    container_name: logstash
+#    volumes:
+#      - $PWD/datasets/:/usr/share/datasets/
+#      - $PWD/logstash/pipeline.yml:/usr/share/logstash/config/pipeline.yml
+#      - $PWD/logstash/conf/:/usr/share/logstash/pipeline/
+#    depends_on:
+#      - elasticsearch
+#    networks:
+#      - main
+#
+#  kibana:
+#    image: docker.elastic.co/kibana/kibana:7.9.0
+#    container_name: kibana
+#    ports:
+#      - 5601:5601
+#    environment:
+#      ELASTICSEARCH_URL: http://elasticsearch:9200
+#      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+#    depends_on:
+#      - elasticsearch
+#    networks:
+#      - main
 
   db:
     image: postgres
     restart: always
-    environment:
-      POSTGRES_PASSWORD: "lool"
-    networks:
-      - main
+    ports:
+      - 5432:5432
+    env_file:
+      - postgres.env
+
 
 
 networks:

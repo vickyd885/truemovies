@@ -1,0 +1,4 @@
+#- pipeline.id: wikipedia-process
+#  path.config: "/usr/share/logstash/pipeline/wikipedia-pipeline.conf"
+- pipeline.id: movies-process
+  path.config: "/usr/share/logstash/pipeline/movies-metadata-pipeline.conf"
